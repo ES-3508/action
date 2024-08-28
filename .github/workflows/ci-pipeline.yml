@@ -1,52 +1,18 @@
-name: CI Pipeline
+name: Node.js CI
 
-on:
-  push:
-    branches:
-      - main
-      - 'feature/*'
-  pull_request:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '20' # Specify the latest Node.js version
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Linting
-        run: npm run test-lint
-
-      - name: Run Unit Tests
-        run: npm run test-unit
-
-      - name: Run Integration Tests
-        run: npm run test-integration
-
-      - name: Run End-to-End Tests
-        run: npm run test-e2e
-
-      - name: Generate Coverage Report
-        run: |
-          mkdir -p coverage
-          cp -r tests/unit/coverage/* coverage/
-          cp -r tests/integration/coverage/* coverage/
-          cp -r tests/e2e/coverage/* coverage/
-        if: success()
-
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v3
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          name: coverage-report
-          path: coverage
+          node-version: '20.x'
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
