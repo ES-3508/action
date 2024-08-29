@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 14.x]
-        mongodb-version: [ '4.2', '4.4']
+        node-version: [14.x]
+        mongodb-version: ['4.2']
 
     steps:
     - name: Git checkout
@@ -36,7 +36,15 @@ jobs:
     - run: npm run test-integration
       working-directory: ./src
 
-    # - run: npm run test-e2e
-    #   working-directory: ./src
+    - name: Start the application
+      run: npm start &
+      working-directory: ./src
+
+    - name: Wait for the server to be ready
+      run: sleep 25 # Adjust this based on your server's startup time
+
+    - name: Run End-to-End Tests
+      run: npm run test-e2e
+      working-directory: ./src
       env:
         CI: true
