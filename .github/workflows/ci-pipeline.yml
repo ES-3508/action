@@ -23,16 +23,16 @@ jobs:
       run: npx playwright install-deps
       working-directory: ./src
 
+    - name: Install additional system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libnss3 libxss1 libasound2 libgbm-dev libxshmfence-dev
+      working-directory: ./src
+
     - name: Start MongoDB
       uses: supercharge/mongodb-github-action@1.6.0
       with:
         mongodb-version: ${{ matrix.mongodb-version }}
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libnss3 libxss1 libasound2
-      working-directory: ./src
 
     - name: Install Node.js dependencies
       run: npm install
@@ -57,14 +57,7 @@ jobs:
       working-directory: ./src
 
     - name: Run End-to-End Tests with Debugging
-      run: DEBUG=pw:api npm run test-e2e
-      working-directory: ./src
-      env:
-        CI: true
-
-    - name: Run End-to-End Tests without sandbox (optional)
-      if: failure()
-      run: npx playwright test --browser chromium --no-sandbox
+      run: DEBUG=pw:api npx playwright test --browser=all --timeout=30000 --retries=1
       working-directory: ./src
       env:
         CI: true
