@@ -14,7 +14,7 @@ jobs:
     - name: Git checkout
       uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
@@ -24,16 +24,20 @@ jobs:
       with:
         mongodb-version: ${{ matrix.mongodb-version }}
 
-    - run: npm install
+    - name: Install dependencies
+      run: npm install
       working-directory: ./src
 
-    - run: npm run test-lint
+    - name: Run Linting
+      run: npm run test-lint
       working-directory: ./src
 
-    - run: npm run test-unit
+    - name: Run Unit Tests
+      run: npm run test-unit
       working-directory: ./src
 
-    - run: npm run test-integration
+    - name: Run Integration Tests
+      run: npm run test-integration
       working-directory: ./src
 
     - name: Start the application
@@ -48,3 +52,4 @@ jobs:
       working-directory: ./src
       env:
         CI: true
+a
