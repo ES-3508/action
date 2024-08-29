@@ -11,21 +11,31 @@ jobs:
         mongodb-version: ['4.2']
 
     steps:
-    - name: Git checkout
+    - name: Check out the code
       uses: actions/checkout@v2
 
     - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+
+    - name: Install Playwright dependencies
+      run: npx playwright install-deps
+      working-directory: ./src
 
     - name: Start MongoDB
       uses: supercharge/mongodb-github-action@1.6.0
       with:
         mongodb-version: ${{ matrix.mongodb-version }}
 
-    - name: Install dependencies
+    - name: Install Node.js dependencies
       run: npm install
+      working-directory: ./src
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libnss3 libxss1 libasound2
       working-directory: ./src
 
     - name: Run Linting
