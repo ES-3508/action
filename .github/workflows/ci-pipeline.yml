@@ -28,14 +28,14 @@ jobs:
       with:
         mongodb-version: ${{ matrix.mongodb-version }}
 
-    - name: Install Node.js dependencies
-      run: npm install
-      working-directory: ./src
-
     - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libnss3 libxss1 libasound2
+      working-directory: ./src
+
+    - name: Install Node.js dependencies
+      run: npm install
       working-directory: ./src
 
     - name: Run Linting
@@ -50,15 +50,28 @@ jobs:
       run: npm run test-integration
       working-directory: ./src
 
-    - name: Start the application
-      run: npm start &
+    - name: Start the application and wait for it to be ready
+      run: |
+        npm start &  # Start the server in the background
+        npx wait-on http://localhost:3000  # Wait until the server is up
       working-directory: ./src
 
-    - name: Wait for the server to be ready
-      run: sleep 25 # Adjust this based on your server's startup time
-
-    - name: Run End-to-End Tests
-      run: npm run test-e2e
+    - name: Run End-to-End Tests with Debugging
+      run: DEBUG=pw:api npm run test-e2e
       working-directory: ./src
       env:
         CI: true
+
+    - name: Run End-to-End Tests without sandbox (optional)
+      if: failure()
+      run: npx playwright test --browser chromium --no-sandbox
+      working-directory: ./src
+      env:
+        CI: true
+
+    - name: Upload Debug Logs
+      if: failure()
+      uses: actions/upload-artifact@v2
+      with:
+        name: debug-logs
+        path: /home/runner/.npm/_logs/
